@@ -1,0 +1,65 @@
+{
+  "name": "@muhammedaksam/ayyildiz-node",
+  "version": "0.1.0",
+  "description": "Ayyıldız Mobile Node.js SDK",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "LICENSE.md",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepare": "pnpm run build",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.ts\" \"*.{js,json,md}\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"*.{js,json,md}\"",
+    "clean": "rm -rf dist",
+    "prebuild": "pnpm run clean",
+    "prepublishOnly": "pnpm run test && pnpm run lint && pnpm run build",
+    "check-all": "pnpm run lint && pnpm run format:check && pnpm run test"
+  },
+  "packageManager": "pnpm@10.13.1",
+  "keywords": [
+    "ayyildiz",
+    "ayyildizmobile",
+    "verify",
+    "sms",
+    "api",
+    "sdk",
+    "api-client",
+    "typescript",
+    "nodejs",
+    "javascript"
+  ],
+  "author": "Muhammed Mustafa AKŞAM <info@muhammedaksam.com.tr> (https://github.com/muhammedaksam)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/muhammedaksam/ayyildiz-node.git"
+  },
+  "bugs": {
+    "url": "https://github.com/muhammedaksam/ayyildiz-node/issues"
+  },
+  "homepage": "https://github.com/muhammedaksam/ayyildiz-node#readme",
+  "dependencies": {
+    "axios": "^1.10.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.30.1",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.0.12",
+    "@typescript-eslint/eslint-plugin": "^8.36.0",
+    "@typescript-eslint/parser": "^8.36.0",
+    "eslint": "^9.30.1",
+    "jest": "^29.7.0",
+    "prettier": "^3.6.2",
+    "ts-jest": "^29.4.0",
+    "typescript": "^5.8.3"
+  }
+}
