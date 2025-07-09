@@ -293,7 +293,7 @@ additional `@types` packages are needed.
 ## API Documentation
 
 For detailed API documentation, please visit
-[Ayyıldız Mobile API Documentation](https://api.ayyildizmobile.com/docs).
+[Ayyıldız Mobile API Documentation](https://api.ayyildiz.net).
 
 ## Support
 
