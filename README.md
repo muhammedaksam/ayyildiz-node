@@ -1,6 +1,6 @@
 # Ayyıldız Mobile Node.js SDK
 
-Official Node.js SDK for Ayyıldız Mobile SMS API.
+Unofficial Node.js SDK for Ayyıldız Mobile SMS API.
 
 ## Installation
 
