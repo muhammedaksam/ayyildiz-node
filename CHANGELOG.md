@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2025-07-09
+
+### Fixed
+- Fixed GitHub Actions permissions for release creation
+- Improved release workflow by switching from tag-based to release-based trigger
+
+### Changed
+- Release workflow now triggers on GitHub release publication instead of tag creation
+- Simplified release process: create GitHub release → automatically publish to NPM
+- Updated release workflow job name to accurately reflect its purpose
+- Improved release workflow user experience and control
+
 ## [0.1.1] - 2025-07-09
 
 ### Fixed
