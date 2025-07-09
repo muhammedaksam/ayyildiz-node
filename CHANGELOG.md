@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.3] - 2025-07-09
+
+### Added
+- Codecov coverage badge and integration
+- Coverage reporting in CI workflow using Node.js 22.x
+- Shields.io badges for better project visibility (npm version, license, TypeScript, CI status, coverage, Node.js version)
+
+### Changed
+- Coverage generation now runs on Node.js 22.x instead of 20.x
+- Improved README with professional badges and visual indicators
+
+### Fixed
+- Fixed coverage file generation and upload to Codecov
+- Ensured coverage reports are properly generated before upload
+
 ## [0.1.2] - 2025-07-09
 
 ### Fixed
