@@ -1,5 +1,12 @@
 # Ayyıldız Mobile Node.js SDK
 
+[![npm version](https://img.shields.io/npm/v/@muhammedaksam/ayyildiz-node.svg)](https://www.npmjs.com/package/@muhammedaksam/ayyildiz-node)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
+[![CI](https://github.com/muhammedaksam/ayyildiz-node/workflows/CI/badge.svg)](https://github.com/muhammedaksam/ayyildiz-node/actions)
+[![codecov](https://codecov.io/gh/muhammedaksam/ayyildiz-node/branch/main/graph/badge.svg)](https://codecov.io/gh/muhammedaksam/ayyildiz-node)
+[![Node.js](https://img.shields.io/badge/Node.js-18%2B-green.svg)](https://nodejs.org/)
+
 Unofficial Node.js SDK for Ayyıldız Mobile SMS API.
 
 ## Installation
