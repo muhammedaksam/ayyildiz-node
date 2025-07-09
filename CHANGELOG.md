@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.4] - 2025-07-09
+
+### Added
+- Comprehensive test coverage achieving 100% across all metrics (statements, branches, functions, lines)
+- Additional test cases for BaseResponse error handling and message fallbacks
+- Test coverage for SmsResponse ID parsing from raw response when data.id is not available
+- Extensive ReportResponse test cases covering edge cases, field parsing, and numeric fallbacks
+- Test cases for unknown error code handling in BaseResponse.getErrorMessage()
+- Enhanced test coverage for null/undefined value handling across all response models
+
+### Improved
+- Test suite now covers all uncovered branches and lines in core modules
+- Enhanced error handling test coverage for AxiosHttpClient
+- Complete coverage of all service constructors and integration points
+- Improved test data alignment and validation for ReportResponse parsing
+- Comprehensive edge case testing for all response models
+
+### Fixed
+- Test cases now properly handle all fallback scenarios in response parsing
+- Corrected test expectations to match actual implementation behavior
+- Fixed test data formatting to ensure proper field alignment in ReportResponse tests
+
 ## [0.1.3] - 2025-07-09
 
 ### Added
