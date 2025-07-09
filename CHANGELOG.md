@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2025-07-09
+
+### Fixed
+- Fixed pnpm version compatibility issues in CI workflows
+- Regenerated pnpm-lock.yaml for compatibility with pnpm v10.x
+- Fixed codecov action configuration (removed deprecated `file` parameter)
+- Ensured pnpm-lock.yaml is tracked in version control for reproducible builds
+
+### Changed
+- Removed `packageManager` field from package.json for more flexible pnpm version management
+- Updated GitHub Actions workflows to use pnpm version 10 (allows patch updates)
+
 ## [0.1.0] - 2025-07-09
 
 ### Added
