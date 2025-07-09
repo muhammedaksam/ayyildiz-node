@@ -24,7 +24,6 @@
     "prepublishOnly": "pnpm run test && pnpm run lint && pnpm run build",
     "check-all": "pnpm run lint && pnpm run format:check && pnpm run test"
   },
-  "packageManager": "pnpm@10.13.1",
   "keywords": [
     "ayyildiz",
     "ayyildizmobile",
