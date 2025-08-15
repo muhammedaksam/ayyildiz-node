@@ -1,0 +1,33 @@
+# Code Owners
+
+# This file was migrated from Dependabot reviewers configuration to use GitHub's native CODEOWNERS functionality.
+
+# It defines who should be automatically requested for review when changes are made to specific parts of the codebase.
+
+# Default owners for everything in the repository
+
+- @muhammedaksam
+
+# Package management files - for dependency updates
+
+package.json @muhammedaksam
+package-lock.json @muhammedaksam
+yarn.lock @muhammedaksam
+pnpm-lock.yaml @muhammedaksam
+pnpm-workspace.yaml @muhammedaksam
+npm-shrinkwrap.json @muhammedaksam
+
+# GitHub Actions and workflow files
+
+.github/workflows/_.yml @muhammedaksam
+.github/workflows/_.yaml @muhammedaksam
+action.yml @muhammedaksam
+action.yaml @muhammedaksam
+
+# Dependabot configuration
+
+.github/dependabot.yml @muhammedaksam
+
+# Other important configuration files
+
+.github/ @muhammedaksam
