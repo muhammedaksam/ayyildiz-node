@@ -57,7 +57,7 @@ describe('AxiosHttpClient', () => {
       const result = await httpClient.post('test-endpoint', 'test-data');
 
       expect(mockAxiosInstance.post).toHaveBeenCalledWith(
-        'http://sms.ayyildiz.com/test-endpoint',
+        'http://sms.ayyildiz.net/test-endpoint',
         'test-data'
       );
       expect(result).toBe(httpClient);
@@ -101,7 +101,7 @@ describe('AxiosHttpClient', () => {
       const options = { param1: 'value1', param2: 'value2' };
       const result = await httpClient.get('test-endpoint', options);
 
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith('http://sms.ayyildiz.com/test-endpoint', {
+      expect(mockAxiosInstance.get).toHaveBeenCalledWith('http://sms.ayyildiz.net/test-endpoint', {
         params: options
       });
       expect(result).toBe(httpClient);
@@ -116,7 +116,7 @@ describe('AxiosHttpClient', () => {
 
       await httpClient.get('test-endpoint');
 
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith('http://sms.ayyildiz.com/test-endpoint', {
+      expect(mockAxiosInstance.get).toHaveBeenCalledWith('http://sms.ayyildiz.net/test-endpoint', {
         params: undefined
       });
     });
@@ -198,7 +198,7 @@ describe('AxiosHttpClient', () => {
       const response = await httpClient.post('test.aspx', objectData);
 
       expect(mockAxiosInstance.post).toHaveBeenCalledWith(
-        'http://sms.ayyildiz.com/test.aspx',
+        'http://sms.ayyildiz.net/test.aspx',
         JSON.stringify(objectData)
       );
       expect(response).toBe(httpClient);

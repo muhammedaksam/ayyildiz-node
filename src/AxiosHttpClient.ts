@@ -3,7 +3,7 @@ import { IHttpClient } from './IHttpClient';
 import { VersionInfo } from './VersionInfo';
 
 export class AxiosHttpClient implements IHttpClient {
-  private baseUrl = 'http://sms.ayyildiz.com/';
+  private baseUrl = 'http://sms.ayyildiz.net/';
   private client: AxiosInstance;
   private lastResponseBody: any;
   private lastResponseStatusCode: number = 0;
