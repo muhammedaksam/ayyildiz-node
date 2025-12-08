@@ -4,15 +4,9 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { execSync } from 'node:child_process';
 
-interface VersionObject {
-  major: number;
-  minor: number;
-  patch: number;
-}
-
 interface FileToUpdate {
   path: string;
-  type: 'package.json' | 'version-info' | 'version-test';
+  type: 'package.json' | 'context7.json';
 }
 
 // Get command line arguments
@@ -41,28 +35,80 @@ function getCurrentVersion(): string {
   }
 }
 
-// Function to parse version string into object
-function parseVersion(version: string): VersionObject {
+// Function to update context7.json with new version in previousVersions
+function updateContext7Json(newVersion: string, oldVersion: string): string | null {
+  const context7Path = path.join(projectRoot, 'context7.json');
+
+  try {
+    if (!fs.existsSync(context7Path)) {
+      console.log('⚠️  context7.json not found - skipping Context7 update');
+      return null;
+    }
+
+    const content = fs.readFileSync(context7Path, 'utf8');
+    const context7Json = JSON.parse(content);
+
+    // Add the old version to previousVersions if it's not already there
+    if (!context7Json.previousVersions) {
+      context7Json.previousVersions = [];
+    }
+
+    // Only add old version if it's different from new version and not already in previousVersions
+    if (oldVersion !== newVersion) {
+      const oldVersionTag = `v${oldVersion}`;
+      const existingVersion = context7Json.previousVersions.find(
+        (v: any) => v.tag === oldVersionTag
+      );
+
+      if (!existingVersion) {
+        // Add old version to the beginning of previousVersions
+        context7Json.previousVersions.unshift({
+          tag: oldVersionTag,
+          title: `version ${oldVersion}`
+        });
+
+        // Keep only the 5 most recent versions to avoid clutter
+        if (context7Json.previousVersions.length > 5) {
+          context7Json.previousVersions = context7Json.previousVersions.slice(0, 5);
+        }
+
+        const updatedContent = JSON.stringify(context7Json, null, 2) + '\n';
+        fs.writeFileSync(context7Path, updatedContent);
+
+        console.log(`✅ Updated context7.json: Added v${oldVersion} to previousVersions`);
+        return updatedContent;
+      } else {
+        console.log(
+          `ℹ️  Version v${oldVersion} already exists in context7.json previousVersions - no update needed`
+        );
+        return null;
+      }
+    } else {
+      console.log('ℹ️  No version change detected - skipping context7.json update');
+      return null;
+    }
+  } catch (error) {
+    console.error('❌ Error updating context7.json:', (error as Error).message);
+    return null;
+  }
+}
+
+// Function to increment patch version (e.g., 1.0.1 -> 1.0.2)
+function incrementPatchVersion(version: string): string {
   const versionParts = version.split('.');
   if (versionParts.length !== 3) {
     throw new Error('Invalid version format');
   }
 
-  return {
-    major: parseInt(versionParts[0]),
-    minor: parseInt(versionParts[1]),
-    patch: parseInt(versionParts[2])
-  };
-}
+  const major = parseInt(versionParts[0]);
+  const minor = parseInt(versionParts[1]);
+  const patch = parseInt(versionParts[2]);
 
-// Function to increment patch version (e.g., 1.0.1 -> 1.0.2)
-function incrementPatchVersion(version: string): string {
-  const versionObj = parseVersion(version);
-  return `${versionObj.major}.${versionObj.minor}.${versionObj.patch + 1}`;
+  return `${major}.${minor}.${patch + 1}`;
 }
 
 // Function to execute git operations
-function executeGitOperations(version: string, updatedFiles: number): void {
+function executeGitOperations(version: string, updatedFiles: number, hasContext7: boolean): void {
   console.log('\n🔄 Committing changes to git...');
 
   try {
@@ -70,32 +116,30 @@ function executeGitOperations(version: string, updatedFiles: number): void {
     process.chdir(projectRoot);
     execSync('git status', { stdio: 'ignore' });
 
-    // Add all updated files
-    const filePaths = [
-      'package.json',
-      'src/VersionInfo.ts',
-      'src/__tests__/VersionInfo.test.ts'
-    ].filter(filePath => {
-      // Only add files that actually exist and were updated
-      return fs.existsSync(path.join(projectRoot, filePath));
-    });
+    // Determine which files to add
+    const filesToAdd = ['package.json'];
+    const fileDescriptions = ['package.json'];
 
-    if (filePaths.length === 0) {
+    if (hasContext7 && fs.existsSync(path.join(projectRoot, 'context7.json'))) {
+      filesToAdd.push('context7.json');
+      fileDescriptions.push('context7.json');
+    }
+
+    if (filesToAdd.length === 0) {
       console.log('⚠️  No files to commit');
       return;
     }
 
     // Add files to git
-    filePaths.forEach(filePath => {
-      execSync(`git add "${filePath}"`, { stdio: 'ignore' });
-      console.log(`📝 Added to git: ${filePath}`);
-    });
+    const gitAddCmd = `git add ${filesToAdd.join(' ')}`;
+    execSync(gitAddCmd, { stdio: 'ignore' });
+    console.log(`📝 Added to git: ${fileDescriptions.join(', ')}`);
 
     // Generate commit message
+    const filesDescription = hasContext7 ? 'package.json and context7.json' : 'package.json';
     const commitMessage = `chore: bump version to v${version}
 
-Updated version across the following files:
-${filePaths.map(file => `- ${file}`).join('\n')}`;
+Updated version in ${filesDescription}${hasContext7 ? ' and added to Context7 previousVersions' : ''}`;
 
     // Commit the changes
     execSync(`git commit -m "${commitMessage}"`, { stdio: 'pipe' });
@@ -120,58 +164,24 @@ ${filePaths.map(file => `- ${file}`).join('\n')}`;
 
 // Function to show current versions
 function showVersions(): void {
-  console.log('📋 Current Versions:');
+  console.log('📋 Current Version:');
 
-  const filesToCheck = [
-    {
-      path: 'package.json',
-      name: 'Package.json',
-      type: 'package.json' as const
-    },
-    {
-      path: 'src/VersionInfo.ts',
-      name: 'VersionInfo.ts',
-      type: 'version-info' as const
-    },
-    {
-      path: 'src/__tests__/VersionInfo.test.ts',
-      name: 'VersionInfo Test',
-      type: 'version-test' as const
+  const packagePath = path.join(projectRoot, 'package.json');
+
+  try {
+    if (!fs.existsSync(packagePath)) {
+      console.log('⚠️  Package.json: File not found');
+      return;
     }
-  ];
 
-  filesToCheck.forEach(({ path: filePath, name, type }) => {
-    const fullPath = path.join(projectRoot, filePath);
+    const content = fs.readFileSync(packagePath, 'utf8');
+    const packageJson = JSON.parse(content);
+    const version = packageJson.version;
 
-    try {
-      if (!fs.existsSync(fullPath)) {
-        console.log(`⚠️  ${name}: File not found (${filePath})`);
-        return;
-      }
-
-      const content = fs.readFileSync(fullPath, 'utf8');
-      let version = 'unknown';
-
-      if (type === 'package.json') {
-        const packageJson = JSON.parse(content);
-        version = packageJson.version;
-      } else if (type === 'version-info') {
-        const majorMatch = content.match(/private static readonly MAJOR = (\d+);/);
-        const minorMatch = content.match(/private static readonly MINOR = (\d+);/);
-        const patchMatch = content.match(/private static readonly PATCH = (\d+);/);
-        if (majorMatch && minorMatch && patchMatch) {
-          version = `${majorMatch[1]}.${minorMatch[1]}.${patchMatch[1]}`;
-        }
-      } else if (type === 'version-test') {
-        const versionMatch = content.match(/expect\(versionString\)\.toBe\(['"](.+?)['"]\);/);
-        version = versionMatch ? versionMatch[1] : 'unknown';
-      }
-
-      console.log(`📦 ${name}: ${version}`);
-    } catch (error) {
-      console.log(`❌ ${name}: Error reading version (${(error as Error).message})`);
-    }
-  });
+    console.log(`📦 Package.json: ${version}`);
+  } catch (error) {
+    console.log(`❌ Package.json: Error reading version (${(error as Error).message})`);
+  }
 }
 
 // Function to update all version-related files
@@ -183,9 +193,10 @@ function updateVersions(version: string): void {
     process.exit(1);
   }
 
-  console.log(`🚀 Updating version to ${version}...`);
+  // Get current version before updating
+  const currentVersion = getCurrentVersion();
 
-  const versionObj = parseVersion(version);
+  console.log(`🚀 Updating version to ${version}...`);
 
   // Files to update
   const filesToUpdate: FileToUpdate[] = [
@@ -194,25 +205,27 @@ function updateVersions(version: string): void {
       type: 'package.json'
     },
     {
-      path: 'src/VersionInfo.ts',
-      type: 'version-info'
-    },
-    {
-      path: 'src/__tests__/VersionInfo.test.ts',
-      type: 'version-test'
+      path: 'context7.json',
+      type: 'context7.json'
     }
   ];
 
   let updatedFiles = 0;
   let errors = 0;
+  let hasContext7Updated = false;
 
   filesToUpdate.forEach(({ path: filePath, type }) => {
     const fullPath = path.join(projectRoot, filePath);
 
     try {
       if (!fs.existsSync(fullPath)) {
-        console.warn(`⚠️  File not found: ${filePath}`);
-        return;
+        if (type === 'context7.json') {
+          console.log(`⚠️  File not found: ${filePath} - skipping Context7 update`);
+          return;
+        } else {
+          console.warn(`⚠️  File not found: ${filePath}`);
+          return;
+        }
       }
 
       const content = fs.readFileSync(fullPath, 'utf8');
@@ -224,60 +237,20 @@ function updateVersions(version: string): void {
         const oldVersion = packageJson.version;
         packageJson.version = version;
         updatedContent = JSON.stringify(packageJson, null, 2) + '\n';
+        fs.writeFileSync(fullPath, updatedContent);
 
         console.log(`✅ Updated ${filePath}: ${oldVersion} → ${version}`);
-      } else if (type === 'version-info') {
-        // Update VersionInfo.ts
-        const oldMajorMatch = content.match(/private static readonly MAJOR = (\d+);/);
-        const oldMinorMatch = content.match(/private static readonly MINOR = (\d+);/);
-        const oldPatchMatch = content.match(/private static readonly PATCH = (\d+);/);
-
-        const oldVersion =
-          oldMajorMatch && oldMinorMatch && oldPatchMatch
-            ? `${oldMajorMatch[1]}.${oldMinorMatch[1]}.${oldPatchMatch[1]}`
-            : 'unknown';
-
-        updatedContent = content
-          .replace(
-            /private static readonly MAJOR = \d+;/,
-            `private static readonly MAJOR = ${versionObj.major};`
-          )
-          .replace(
-            /private static readonly MINOR = \d+;/,
-            `private static readonly MINOR = ${versionObj.minor};`
-          )
-          .replace(
-            /private static readonly PATCH = \d+;/,
-            `private static readonly PATCH = ${versionObj.patch};`
-          );
-
-        console.log(`✅ Updated ${filePath}: ${oldVersion} → ${version}`);
-      } else if (type === 'version-test') {
-        // Update VersionInfo.test.ts
-        const oldVersionMatch = content.match(/expect\(versionString\)\.toBe\(['"](.+?)['"]\);/);
-        const oldVersion = oldVersionMatch ? oldVersionMatch[1] : 'unknown';
-
-        updatedContent = content
-          .replace(
-            /expect\(versionString\)\.toBe\(['"](.+?)['"]\);/,
-            `expect(versionString).toBe('${version}');`
-          )
-          .replace(
-            /expect\(versionObj\)\.toEqual\(\s*\{[\s\S]*?\}\s*\);/,
-            `expect(versionObj).toEqual({
-        major: ${versionObj.major},
-        minor: ${versionObj.minor},
-        patch: ${versionObj.patch}
-      });`
-          );
-
-        console.log(`✅ Updated ${filePath}: ${oldVersion} → ${version}`);
+        updatedFiles++;
+      } else if (type === 'context7.json') {
+        // Update context7.json - add current version to previousVersions
+        const result = updateContext7Json(version, currentVersion);
+        if (result !== null) {
+          hasContext7Updated = true;
+          updatedFiles++;
+        }
       } else {
         throw new Error(`Unknown file type: ${type}`);
       }
-
-      fs.writeFileSync(fullPath, updatedContent);
-      updatedFiles++;
     } catch (error) {
       console.error(`❌ Error updating ${filePath}:`, (error as Error).message);
       errors++;
@@ -295,13 +268,11 @@ function updateVersions(version: string): void {
 
     // Execute git operations if files were successfully updated
     if (updatedFiles > 0) {
-      executeGitOperations(version, updatedFiles);
+      executeGitOperations(version, updatedFiles, hasContext7Updated);
     }
 
-    console.log('\n💡 Note: All version references have been updated across:');
-    console.log('   • package.json version field');
-    console.log('   • VersionInfo.ts static constants');
-    console.log('   • VersionInfo.test.ts expected values');
+    const filesNote = hasContext7Updated ? 'package.json and context7.json' : 'package.json';
+    console.log(`\n💡 Note: Version has been updated in ${filesNote}`);
   }
 }
 
@@ -333,8 +304,8 @@ if (command === 'update') {
   } else {
     console.error('❌ Invalid command');
     console.log('Usage:');
-    console.log('  npx tsx scripts/version-helper.ts show              # Show current versions');
-    console.log('  npx tsx scripts/version-helper.ts version           # Show current versions');
+    console.log('  npx tsx scripts/version-helper.ts show              # Show current version');
+    console.log('  npx tsx scripts/version-helper.ts version           # Show current version');
     console.log(
       '  npx tsx scripts/version-helper.ts update            # Auto-increment patch version & commit'
     );
@@ -358,8 +329,9 @@ if (command === 'update') {
     );
     console.log('');
     console.log('Git Integration:');
-    console.log('  • Automatically stages updated files (git add)');
+    console.log('  • Automatically stages package.json and context7.json files (git add)');
     console.log('  • Creates a commit with descriptive message');
+    console.log('  • Adds previous version to context7.json previousVersions array');
     console.log('  • Handles cases where not in a git repository gracefully');
     process.exit(1);
   }
