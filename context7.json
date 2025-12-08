@@ -4,8 +4,21 @@
   "public_key": "pk_DwLynWqxOvim0fveT9Rn0",
   "projectTitle": "Ayyıldız Mobile Node.js SDK",
   "description": "Official Node.js TypeScript SDK for Ayyıldız Mobile SMS API supporting SMS sending, account management, and reporting features",
-  "folders": ["src/", "src/models/", "src/responses/", "src/services/"],
-  "excludeFolders": ["coverage/", "dist/", "node_modules/", "src/__tests__/", ".git/", ".vscode/", "scripts/"],
+  "folders": [
+    "src/",
+    "src/models/",
+    "src/responses/",
+    "src/services/"
+  ],
+  "excludeFolders": [
+    "coverage/",
+    "dist/",
+    "node_modules/",
+    "src/__tests__/",
+    ".git/",
+    ".vscode/",
+    "scripts/"
+  ],
   "excludeFiles": [
     "CHANGELOG.md",
     "LICENSE.md",
@@ -27,5 +40,10 @@
     "Use the response models to type all API responses appropriately",
     "Ensure all SMS configurations (sender, receiver, message) are validated before sending"
   ],
-  "previousVersions": []
+  "previousVersions": [
+    {
+      "tag": "v1.0.7",
+      "title": "version 1.0.7"
+    }
+  ]
 }
