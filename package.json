@@ -1,6 +1,6 @@
 {
   "name": "@muhammedaksam/ayyildiz-node",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Ayyıldız Mobile Node.js SDK",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -55,7 +55,7 @@
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@types/jest": "^30.0.0",
-    "@types/node": "^24.10.1",
+    "@types/node": "^25.0.2",
     "@typescript-eslint/eslint-plugin": "^8.48.1",
     "@typescript-eslint/parser": "^8.48.1",
     "eslint": "^9.39.1",
