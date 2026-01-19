@@ -35,6 +35,49 @@ function getCurrentVersion(): string {
   }
 }
 
+// Function to update VersionInfo.ts with new version
+function updateVersionInfoTs(version: string): void {
+  const versionInfoPath = path.join(projectRoot, 'src', 'VersionInfo.ts');
+
+  try {
+    if (!fs.existsSync(versionInfoPath)) {
+      console.log('⚠️  src/VersionInfo.ts not found - skipping VersionInfo update');
+      return;
+    }
+
+    const versionParts = version.split('.');
+    if (versionParts.length !== 3) {
+      console.error('❌ Invalid version format for VersionInfo.ts');
+      return;
+    }
+
+    const [major, minor, patch] = versionParts;
+
+    const content = fs.readFileSync(versionInfoPath, 'utf8');
+
+    // Update MAJOR, MINOR, and PATCH values
+    let updatedContent = content
+      .replace(/private static readonly MAJOR = \d+;/, `private static readonly MAJOR = ${major};`)
+      .replace(/private static readonly MINOR = \d+;/, `private static readonly MINOR = ${minor};`)
+      .replace(/private static readonly PATCH = \d+;/, `private static readonly PATCH = ${patch};`);
+
+    fs.writeFileSync(versionInfoPath, updatedContent);
+
+    // Format with Prettier if available
+    try {
+      execSync('pnpm prettier --write src/VersionInfo.ts', {
+        cwd: projectRoot,
+        stdio: 'ignore'
+      });
+      console.log(`✅ Updated src/VersionInfo.ts to v${version} (formatted)`);
+    } catch {
+      console.log(`✅ Updated src/VersionInfo.ts to v${version}`);
+    }
+  } catch (error) {
+    console.error('❌ Error updating VersionInfo.ts:', (error as Error).message);
+  }
+}
+
 // Function to update context7.json with new version in previousVersions
 function updateContext7Json(newVersion: string, oldVersion: string): string | null {
   const context7Path = path.join(projectRoot, 'context7.json');
@@ -137,6 +180,11 @@ function executeGitOperations(version: string, updatedFiles: number, hasContext7
       fileDescriptions.push('context7.json');
     }
 
+    if (fs.existsSync(path.join(projectRoot, 'src', 'VersionInfo.ts'))) {
+      filesToAdd.push('src/VersionInfo.ts');
+      fileDescriptions.push('src/VersionInfo.ts');
+    }
+
     if (filesToAdd.length === 0) {
       console.log('⚠️  No files to commit');
       return;
@@ -148,7 +196,11 @@ function executeGitOperations(version: string, updatedFiles: number, hasContext7
     console.log(`📝 Added to git: ${fileDescriptions.join(', ')}`);
 
     // Generate commit message
-    const filesDescription = hasContext7 ? 'package.json and context7.json' : 'package.json';
+    const hasVersionInfo = fs.existsSync(path.join(projectRoot, 'src', 'VersionInfo.ts'));
+    let filesDescription = 'package.json';
+    if (hasContext7) filesDescription += ', context7.json';
+    if (hasVersionInfo) filesDescription += ', and src/VersionInfo.ts';
+
     const commitMessage = `chore: bump version to v${version}
 
 Updated version in ${filesDescription}${hasContext7 ? ' and added to Context7 previousVersions' : ''}`;
@@ -253,6 +305,12 @@ function updateVersions(version: string): void {
 
         console.log(`✅ Updated ${filePath}: ${oldVersion} → ${version}`);
         updatedFiles++;
+
+        // Also update VersionInfo.ts after updating package.json
+        updateVersionInfoTs(version);
+        if (fs.existsSync(path.join(projectRoot, 'src', 'VersionInfo.ts'))) {
+          updatedFiles++;
+        }
       } else if (type === 'context7.json') {
         // Update context7.json - add current version to previousVersions
         const result = updateContext7Json(version, currentVersion);
@@ -283,7 +341,11 @@ function updateVersions(version: string): void {
       executeGitOperations(version, updatedFiles, hasContext7Updated);
     }
 
-    const filesNote = hasContext7Updated ? 'package.json and context7.json' : 'package.json';
+    const hasVersionInfo = fs.existsSync(path.join(projectRoot, 'src', 'VersionInfo.ts'));
+    let filesNote = 'package.json';
+    if (hasContext7Updated) filesNote += ', context7.json';
+    if (hasVersionInfo) filesNote += ', and src/VersionInfo.ts';
+
     console.log(`\n💡 Note: Version has been updated in ${filesNote}`);
   }
 }
