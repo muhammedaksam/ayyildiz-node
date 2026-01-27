@@ -78,6 +78,55 @@ function updateVersionInfoTs(version: string): void {
   }
 }
 
+// Function to update VersionInfo.test.ts with new version
+function updateVersionInfoTestTs(version: string): void {
+  const testPath = path.join(projectRoot, 'src', '__tests__', 'VersionInfo.test.ts');
+
+  try {
+    if (!fs.existsSync(testPath)) {
+      console.log('⚠️  src/__tests__/VersionInfo.test.ts not found - skipping test update');
+      return;
+    }
+
+    const versionParts = version.split('.');
+    if (versionParts.length !== 3) {
+      console.error('❌ Invalid version format for VersionInfo.test.ts');
+      return;
+    }
+
+    const [major, minor, patch] = versionParts;
+
+    const content = fs.readFileSync(testPath, 'utf8');
+
+    // Update the hardcoded version string in the test (e.g., '1.0.7' -> '1.0.15')
+    let updatedContent = content.replace(
+      /expect\(versionString\)\.toBe\('[\d.]+'\);/,
+      `expect(versionString).toBe('${version}');`
+    );
+
+    // Update the version object in the test
+    updatedContent = updatedContent.replace(
+      /expect\(versionObj\)\.toEqual\(\{\s*major:\s*\d+,\s*minor:\s*\d+,\s*patch:\s*\d+\s*\}\);/s,
+      `expect(versionObj).toEqual({\n        major: ${major},\n        minor: ${minor},\n        patch: ${patch}\n      });`
+    );
+
+    fs.writeFileSync(testPath, updatedContent);
+
+    // Format with Prettier if available
+    try {
+      execSync('pnpm prettier --write src/__tests__/VersionInfo.test.ts', {
+        cwd: projectRoot,
+        stdio: 'ignore'
+      });
+      console.log(`✅ Updated src/__tests__/VersionInfo.test.ts to v${version} (formatted)`);
+    } catch {
+      console.log(`✅ Updated src/__tests__/VersionInfo.test.ts to v${version}`);
+    }
+  } catch (error) {
+    console.error('❌ Error updating VersionInfo.test.ts:', (error as Error).message);
+  }
+}
+
 // Function to update context7.json with new version in previousVersions
 function updateContext7Json(newVersion: string, oldVersion: string): string | null {
   const context7Path = path.join(projectRoot, 'context7.json');
@@ -185,6 +234,11 @@ function executeGitOperations(version: string, updatedFiles: number, hasContext7
       fileDescriptions.push('src/VersionInfo.ts');
     }
 
+    if (fs.existsSync(path.join(projectRoot, 'src', '__tests__', 'VersionInfo.test.ts'))) {
+      filesToAdd.push('src/__tests__/VersionInfo.test.ts');
+      fileDescriptions.push('src/__tests__/VersionInfo.test.ts');
+    }
+
     if (filesToAdd.length === 0) {
       console.log('⚠️  No files to commit');
       return;
@@ -197,9 +251,13 @@ function executeGitOperations(version: string, updatedFiles: number, hasContext7
 
     // Generate commit message
     const hasVersionInfo = fs.existsSync(path.join(projectRoot, 'src', 'VersionInfo.ts'));
+    const hasVersionInfoTest = fs.existsSync(
+      path.join(projectRoot, 'src', '__tests__', 'VersionInfo.test.ts')
+    );
     let filesDescription = 'package.json';
     if (hasContext7) filesDescription += ', context7.json';
-    if (hasVersionInfo) filesDescription += ', and src/VersionInfo.ts';
+    if (hasVersionInfo) filesDescription += ', src/VersionInfo.ts';
+    if (hasVersionInfoTest) filesDescription += ', and src/__tests__/VersionInfo.test.ts';
 
     const commitMessage = `chore: bump version to v${version}
 
@@ -306,9 +364,14 @@ function updateVersions(version: string): void {
         console.log(`✅ Updated ${filePath}: ${oldVersion} → ${version}`);
         updatedFiles++;
 
-        // Also update VersionInfo.ts after updating package.json
+        // Also update VersionInfo.ts and test file after updating package.json
         updateVersionInfoTs(version);
         if (fs.existsSync(path.join(projectRoot, 'src', 'VersionInfo.ts'))) {
+          updatedFiles++;
+        }
+
+        updateVersionInfoTestTs(version);
+        if (fs.existsSync(path.join(projectRoot, 'src', '__tests__', 'VersionInfo.test.ts'))) {
           updatedFiles++;
         }
       } else if (type === 'context7.json') {
@@ -342,9 +405,13 @@ function updateVersions(version: string): void {
     }
 
     const hasVersionInfo = fs.existsSync(path.join(projectRoot, 'src', 'VersionInfo.ts'));
+    const hasVersionInfoTest = fs.existsSync(
+      path.join(projectRoot, 'src', '__tests__', 'VersionInfo.test.ts')
+    );
     let filesNote = 'package.json';
     if (hasContext7Updated) filesNote += ', context7.json';
-    if (hasVersionInfo) filesNote += ', and src/VersionInfo.ts';
+    if (hasVersionInfo) filesNote += ', src/VersionInfo.ts';
+    if (hasVersionInfoTest) filesNote += ', and src/__tests__/VersionInfo.test.ts';
 
     console.log(`\n💡 Note: Version has been updated in ${filesNote}`);
   }
