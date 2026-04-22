@@ -29,6 +29,10 @@
   ],
   "previousVersions": [
     {
+      "tag": "v1.0.18",
+      "title": "version 1.0.18"
+    },
+    {
       "tag": "v1.0.17",
       "title": "version 1.0.17"
     },
@@ -43,10 +47,6 @@
     {
       "tag": "v1.0.14",
       "title": "version 1.0.14"
-    },
-    {
-      "tag": "v1.0.13",
-      "title": "version 1.0.13"
     }
   ]
 }
