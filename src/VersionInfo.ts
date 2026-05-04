@@ -1,7 +1,7 @@
 export class VersionInfo {
   private static readonly MAJOR = 1;
   private static readonly MINOR = 0;
-  private static readonly PATCH = 20;
+  private static readonly PATCH = 21;
 
   /**
    * Get version string in semver format
