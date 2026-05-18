@@ -15,7 +15,7 @@ describe('VersionInfo', () => {
 
     it('should return current version', () => {
       const versionString = VersionInfo.string();
-      expect(versionString).toBe('1.0.22');
+      expect(versionString).toBe('1.0.23');
     });
   });
 
@@ -38,7 +38,7 @@ describe('VersionInfo', () => {
       expect(versionObj).toEqual({
         major: 1,
         minor: 0,
-        patch: 22
+        patch: 23
       });
     });
 
