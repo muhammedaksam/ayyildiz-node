@@ -1,6 +1,6 @@
 {
   "name": "@muhammedaksam/ayyildiz-node",
-  "version": "1.0.24",
+  "version": "1.0.25",
   "description": "Ayyıldız Mobile Node.js SDK",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -51,17 +51,17 @@
   "homepage": "https://github.com/muhammedaksam/ayyildiz-node#readme",
   "packageManager": "pnpm@10.23.0",
   "dependencies": {
-    "axios": "^1.16.1"
+    "axios": "^1.18.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/jest": "^30.0.0",
-    "@types/node": "^25.9.1",
-    "@typescript-eslint/eslint-plugin": "^8.60.1",
-    "@typescript-eslint/parser": "^8.60.1",
-    "eslint": "^10.4.1",
+    "@types/node": "^26.0.1",
+    "@typescript-eslint/eslint-plugin": "^8.62.0",
+    "@typescript-eslint/parser": "^8.62.0",
+    "eslint": "^10.6.0",
     "jest": "^30.4.2",
-    "prettier": "^3.8.3",
+    "prettier": "^3.9.1",
     "ts-jest": "^29.4.11",
     "tsx": "^4.22.4",
     "typescript": "^6.0.3"
